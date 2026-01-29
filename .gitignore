@@ -1,0 +1,5 @@
+.*toml
+venv/
+.DS_Store
+.python-version
+.*swp
