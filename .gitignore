@@ -3,3 +3,5 @@ venv/
 .DS_Store
 .python-version
 .*swp
+kaggle.json
+notebook/

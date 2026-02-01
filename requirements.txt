@@ -1,0 +1,5 @@
+ipykernel
+scikit-learn
+numpy
+pandas
+kaggle
