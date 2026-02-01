@@ -11,4 +11,6 @@ data/time_slices/
 *.csv
 *.pkl
 kaggle.json
-notebook/
+notebook/data/raw/*.csv
+data/time_slices/*.csv
+*.zip
