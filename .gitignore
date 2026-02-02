@@ -14,3 +14,7 @@ kaggle.json
 notebook/data/raw/*.csv
 data/time_slices/*.csv
 *.zip
+sample_submission.csv
+test_identity.csv
+data/raw/test_identity.csv
+data/raw/sample_submission.csv
