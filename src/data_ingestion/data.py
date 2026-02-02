@@ -46,9 +46,11 @@ def main():
 
     raw_dir = project_root / "data" / "raw"
     output_dir = project_root / "data" / "time_slices"
+    merged_path = project_root / "data" / "merged"
 
     transaction_df, identity_df = load_raw_data(raw_dir)
     merged_df = merge_data(transaction_df, identity_df)
+    merged_df.to_csv(merged_path / "merged.csv", index=False)
     sliced_df = create_time_slices(merged_df, n_slices=8)
     save_time_slices(sliced_df, output_dir)
 

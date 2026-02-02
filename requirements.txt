@@ -2,4 +2,5 @@ ipykernel
 scikit-learn
 numpy
 pandas
+matplotlib
 kaggle
