@@ -70,7 +70,7 @@ def main():
     project_root = Path(__file__).resolve().parents[2]
 
     baseline_path = project_root / "data" / "time_slices" / "baseline.csv"
-    output_path = project_root / "src" / "data_quality" / "quality_stats.json"
+    output_path = project_root / "artifacts" / "baseline" / "quality_stats.json"
 
     df = load_baseline(baseline_path)
     numeric_cols, categorical_cols = get_feature_groups(df)
