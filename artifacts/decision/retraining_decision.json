@@ -1,0 +1,12 @@
+{
+  "decision": "RETRAIN",
+  "confidence": "HIGH",
+  "reasons": [
+    "Recall dropped by 85%",
+    "F1-score dropped by 74%",
+    "Quality alerts triggered in 100% of slices",
+    "28 features show severe PSI drift (> 0.25)",
+    "138 high-importance features lost predictive power"
+  ],
+  "timestamp": "2026-02-03T19:48:36.411090"
+}
