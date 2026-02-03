@@ -20,4 +20,7 @@ notebook/
 .idea/
 *.zip
 .*swp
-kaggle.json
+kaggle.jsonmodels/*.pkl
+*.pkl
+models/*.pkl
+*.pkl
