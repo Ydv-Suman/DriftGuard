@@ -1,3 +1,4 @@
+"""Permutation importance on baseline vs degraded slice; output feature_impact_*.csv for decision engine."""
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -8,13 +9,14 @@ from sklearn.inspection import permutation_importance as sk_permutation_importan
 
 
 BASELINE_SLICE = "baseline.csv"
-DEGRADED_SLICE = "slice_6.csv"
-N_PERMUTATION_REPEATS = 3
+DEGRADED_SLICE = "slice_6.csv"   # Slice used as degraded for importance comparison
+N_PERMUTATION_REPEATS = 3  # repeats for permutation importance
 RANDOM_STATE = 42
-MAX_SAMPLES_FOR_IMPORTANCE = 5000
+MAX_SAMPLES_FOR_IMPORTANCE = 5000  # subsample if dataset larger (speed)
 
 
 def load_model(model_path: Path):
+    """Load pickled model from path. Raises FileNotFoundError if missing."""
     if not model_path.exists():
         raise FileNotFoundError(f"model is not found at {model_path}")
     with open(model_path, "rb") as f:
@@ -22,11 +24,13 @@ def load_model(model_path: Path):
 
 
 def load_slice(slice_path: Path):
+    """Load slice CSV. Raises FileNotFoundError if missing."""
     if not slice_path.exists():
         raise FileNotFoundError(f"slice df not found at {slice_path}")
     return pd.read_csv(slice_path, low_memory=False)
 
 def prepare_xy(df: pd.DataFrame):
+    """Drop TransactionID and time_slice, split into X (features) and y (isFraud). Returns (X, y)."""
     df = df.copy()
     df = df.drop(columns=["TransactionID", "time_slice"], errors="ignore")
     TARGET = "isFraud"
@@ -35,6 +39,7 @@ def prepare_xy(df: pd.DataFrame):
     return X, y
 
 
+# Scorer used for permutation importance
 F1_SCORER = make_scorer(f1_score, zero_division=0)
 
 
@@ -46,6 +51,7 @@ def permutation_importance(
     max_samples: int | None = MAX_SAMPLES_FOR_IMPORTANCE,
     n_jobs: int = -1,
 ) -> Dict[str, float]:
+    """Permutation importance with F1. Optionally subsample. Returns dict of feature name to mean importance."""
     if max_samples is not None and len(X) > max_samples:
         rng = np.random.default_rng(RANDOM_STATE)
         idx = rng.choice(len(X), size=max_samples, replace=False)
@@ -62,6 +68,7 @@ def permutation_importance(
     return dict(zip(X.columns, result.importances_mean))
 
 def main():
+    """Compute permutation importance on baseline and degraded slice, write feature_impact_*.csv."""
     project_root = Path(__file__).resolve().parents[2]
     model_path = project_root / "models" / "baseline_model.pkl"
     slice_dir = project_root / "data" / "time_slices"
@@ -109,5 +116,6 @@ def main():
     delta_df.to_csv(output_dir / "feature_impact_delta.csv", index=False)
     print("saved")
 
-if __name__ == "__main__":
+def run():
+    """Entry point: run main()."""
     main()

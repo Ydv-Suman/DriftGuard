@@ -1,3 +1,4 @@
+"""Compare each time slice to baseline quality; log metrics and alert flags. Writes data_quality_log.csv."""
 import pandas as pd
 import numpy as np
 import json
@@ -5,12 +6,13 @@ from pathlib import Path
 from typing import Dict, List
 from datetime import datetime
 
-ALERT_MISSING_DELTA = 0.10   
-ALERT_OUTLIER_DELTA = 0.05  
-ALERT_QUALITY_THRESHOLD = 0.85
+ALERT_MISSING_DELTA = 0.10   # Alert if missing rate spike vs baseline exceeds this
+ALERT_OUTLIER_DELTA = 0.05   # Alert if avg outlier rate exceeds this
+ALERT_QUALITY_THRESHOLD = 0.85  # Alert if quality_score falls below this
 
 
 def load_baseline_stat(baseline_stat_path: Path) -> Dict:
+    """Load baseline quality stats JSON. Raises FileNotFoundError if missing."""
     if not baseline_stat_path.exists():
         raise FileNotFoundError(f"Baseline stats file not found at {baseline_stat_path}")
 
@@ -18,8 +20,8 @@ def load_baseline_stat(baseline_stat_path: Path) -> Dict:
        return json.load(f)
 
 
-def run_quality_check(slice_df: pd.DataFrame, baseline_missing:pd.Series, outlier_bounds: Dict, numeric_features: List) -> dict:
-
+def run_quality_check(slice_df: pd.DataFrame, baseline_missing: pd.Series, outlier_bounds: Dict, numeric_features: List) -> dict:
+    """Compute avg_missing_rate, avg_missing_delta, avg_outlier_rate, quality_score for one slice vs baseline."""
     current_missing = slice_df.isna().mean()
     common_cols = [col for col in current_missing.index if col in baseline_missing.index]
     missing_delta = current_missing[common_cols] - baseline_missing[common_cols]
@@ -52,8 +54,8 @@ def run_quality_check(slice_df: pd.DataFrame, baseline_missing:pd.Series, outlie
         "quality_score": float(quality_score)
     }
 
-def trigger_quality_alert(slice_id: str,metrics: Dict,baseline_missing: pd.Series) -> Dict:
-
+def trigger_quality_alert(slice_id: str, metrics: Dict, baseline_missing: pd.Series) -> Dict:
+    """Add slice_id, timestamp, and alert_flag to metrics. alert_flag True if missing spike, outlier rate, or low quality_score."""
     baseline_avg_missing = baseline_missing.mean()
 
     missing_spike = metrics["avg_missing_rate"] - baseline_avg_missing
@@ -73,6 +75,7 @@ def trigger_quality_alert(slice_id: str,metrics: Dict,baseline_missing: pd.Serie
 
 
 def main():
+    """Run quality check on each slice_*.csv, write data_quality_log.csv."""
     project_root = Path(__file__).resolve().parents[2]
     baseline_stats_path = (project_root / "artifacts" / "baseline" / "quality_stats.json")
     slice_dir = project_root / "data" / "time_slices"
@@ -111,5 +114,6 @@ def main():
         print("No slice_*.csv files found. Nothing to evaluate.")
 
 
-if __name__ == "__main__":
+def run():
+    """Entry point: run main()."""
     main()

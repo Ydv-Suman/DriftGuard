@@ -1,3 +1,4 @@
+"""Train RandomForest on baseline time slice; save model and baseline precision/recall/f1. Writes baseline_model_stats.json."""
 from pathlib import Path
 import pandas as pd
 import pickle
@@ -12,12 +13,14 @@ from sklearn.metrics import classification_report, precision_score, recall_score
 
 
 def load_baseline(baseline_path: Path) -> pd.DataFrame:
+    """Load baseline CSV. Raises FileNotFoundError if missing."""
     if not baseline_path.exists():
         raise FileNotFoundError(f"Baseline file not found at {baseline_path}")
     return pd.read_csv(baseline_path)
 
 
 def train_baseline_model(df: pd.DataFrame):
+    """Build preprocessor (numeric median impute, categorical one-hot) and RandomForest, fit on X, y. Returns (model, X, y)."""
     df = df.copy()
 
     df = df.drop(columns=["TransactionID", "time_slice"], errors="ignore")
@@ -57,6 +60,7 @@ def train_baseline_model(df: pd.DataFrame):
 
 
 def main():
+    """Train model on baseline slice, save model pickle and baseline_model_stats.json (precision, recall, f1, support)."""
     project_root = Path(__file__).resolve().parents[2]
 
     baseline_path = project_root / "data" / "time_slices" / "baseline.csv"
@@ -85,5 +89,6 @@ def main():
         pickle.dump(model, f)
 
 
-if __name__ == "__main__":
+def run():
+    """Entry point: run main()."""
     main()

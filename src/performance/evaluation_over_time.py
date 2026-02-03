@@ -1,3 +1,4 @@
+"""Evaluate baseline model on each time slice; compare to baseline stats. Writes performance_log.csv."""
 from pathlib import Path
 import json
 import pickle
@@ -7,12 +8,14 @@ from sklearn.metrics import f1_score, precision_score, recall_score
 
 
 def load_model(model_path: Path):
+    """Load pickled model from path. Raises FileNotFoundError if missing."""
     if not model_path.exists():
         raise FileNotFoundError(f"model is not found at {model_path}")
     with open(model_path, "rb") as f:
         return pickle.load(f)
 
 def evaluate_slice(slice_df: pd.DataFrame, model):
+    """Predict on slice, return precision, recall, f1 (zero_division=0)."""
     df = slice_df.copy()
     df.drop(["TransactionID", "time_slice"], axis=1, inplace=True, errors="ignore")
     TARGET = "isFraud"
@@ -28,6 +31,7 @@ def evaluate_slice(slice_df: pd.DataFrame, model):
     }
 
 def compare_stats(baseline_stats_path: Path, slice_metrics: dict) -> dict:
+    """Load baseline stats JSON and return precision_drop, recall_drop, f1_drop (baseline minus slice)."""
     with open(baseline_stats_path) as f:
         baseline = json.load(f)
     return {
@@ -39,6 +43,7 @@ def compare_stats(baseline_stats_path: Path, slice_metrics: dict) -> dict:
 
 
 def main():
+    """Evaluate baseline model on each slice_*.csv, compare to baseline stats, write performance_log.csv."""
     project_root = Path(__file__).resolve().parents[2]
 
     model_path = project_root / "models" / "baseline_model.pkl"
@@ -67,7 +72,6 @@ def main():
         print("No slices found.")
 
 
-
-
-if __name__ == "__main__":
+def run():
+    """Entry point: run main()."""
     main()

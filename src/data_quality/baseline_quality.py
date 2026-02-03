@@ -1,18 +1,23 @@
+"""Compute baseline data quality: missing rates, IQR outlier bounds, feature stats. Writes quality_stats.json."""
 from pathlib import Path
 import pandas as pd
 import numpy as np
 import json
 
 
+# Columns to exclude from quality stats (IDs, target, slice label)
 ignore_cols = ["TransactionID", "isFraud", "time_slice"]
 
+
 def load_baseline(baseline_path: Path) -> pd.DataFrame:
+    """Load baseline CSV from path. Raises FileNotFoundError if missing."""
     if not baseline_path.exists():
         raise FileNotFoundError(f"Baseline file not found at {baseline_path}")
     return pd.read_csv(baseline_path)
 
 
 def get_feature_groups(df: pd.DataFrame):
+    """Split columns into numeric and categorical, excluding ignore_cols. Returns (numeric_cols, categorical_cols)."""
     numeric_cols = df.select_dtypes(include=["int64", "float64"]).columns
     categorical_cols = df.select_dtypes(include=["object", "string"]).columns
     numeric_cols = [col for col in numeric_cols if col not in ignore_cols]
@@ -21,9 +26,11 @@ def get_feature_groups(df: pd.DataFrame):
     return numeric_cols, categorical_cols
 
 def compute_missing_rate(df: pd.DataFrame):
+    """Return dict of column name to fraction of missing values."""
     return df.isna().mean().to_dict()
 
 def compute_outlier_bounds(df: pd.DataFrame, numeric_cols):
+    """IQR-based bounds per numeric column: q1, q3, lower, upper (1.5 * IQR rule). Returns dict of col to bounds."""
     bounds = {}
 
     for col in numeric_cols:
@@ -44,6 +51,7 @@ def compute_outlier_bounds(df: pd.DataFrame, numeric_cols):
     return bounds
 
 def compute_feature_stats(df: pd.DataFrame, numeric_cols):
+    """Mean, std, min, max per numeric column. Returns dict of col to stats."""
     stats = {}
 
     for col in numeric_cols:
@@ -58,6 +66,7 @@ def compute_feature_stats(df: pd.DataFrame, numeric_cols):
 
 
 def save_quality_artifact(artifact: dict, output_path: Path):
+    """Write artifact dict to JSON at output_path. Creates parent dirs if needed."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(output_path, "w") as f:
@@ -67,6 +76,7 @@ def save_quality_artifact(artifact: dict, output_path: Path):
 
 
 def main():
+    """Compute baseline quality stats from baseline.csv and save to quality_stats.json."""
     project_root = Path(__file__).resolve().parents[2]
 
     baseline_path = project_root / "data" / "time_slices" / "baseline.csv"
@@ -89,5 +99,6 @@ def main():
     save_quality_artifact(baseline_quality, output_path)
 
 
-if __name__ == "__main__":
+def run():
+    """Entry point: run main()."""
     main()

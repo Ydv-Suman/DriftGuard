@@ -1,26 +1,30 @@
+"""Detect feature drift per slice vs baseline using PSI and KS; write drift_log.csv."""
 from pathlib import Path
 import pandas as pd
 import numpy as np
 from scipy.stats import ks_2samp
 
 IGNORE_COLS = ["TransactionID", "isFraud", "time_slice"]
-N_PSI_BINS = 10
+N_PSI_BINS = 10  # number of bins for Population Stability Index
 EPS = 1e-10  # avoid log(0) in PSI
 MAX_KS_SAMPLE = 5_000  # subsample for KS when n > this (speed + scipy stability)
 
 
 def load_baseline(baseline_path: Path) -> pd.DataFrame:
+    """Load baseline CSV. Raises FileNotFoundError if missing."""
     if not baseline_path.exists():
         raise FileNotFoundError(f"Baseline file not found at {baseline_path}")
     return pd.read_csv(baseline_path)
 
 
 def _get_numeric_features(df: pd.DataFrame) -> list:
+    """Return list of numeric column names excluding IGNORE_COLS."""
     numeric = df.select_dtypes(include=[np.number]).columns.tolist()
     return [c for c in numeric if c not in IGNORE_COLS]
 
 
 def compute_psi(baseline_series: pd.Series, slice_series: pd.Series, n_bins: int = N_PSI_BINS) -> float:
+    """Population Stability Index between baseline and slice distributions. Returns float or nan if empty."""
     base = baseline_series.dropna()
     slc = slice_series.dropna()
     if len(base) == 0 or len(slc) == 0:
@@ -45,6 +49,7 @@ def compute_psi(baseline_series: pd.Series, slice_series: pd.Series, n_bins: int
 
 
 def compute_ks(baseline_series: pd.Series, slice_series: pd.Series) -> tuple[float, float]:
+    """Kolmogorov-Smirnov statistic and p-value. Subsamples if len > MAX_KS_SAMPLE. Returns (stat, pval)."""
     base = baseline_series.dropna()
     slc = slice_series.dropna()
     if len(base) == 0 or len(slc) == 0:
@@ -58,6 +63,7 @@ def compute_ks(baseline_series: pd.Series, slice_series: pd.Series) -> tuple[flo
 
 
 def psi_to_drift_flag(psi: float) -> str:
+    """Map PSI to label: unknown, no_drift, moderate_drift, or severe_drift."""
     if np.isnan(psi):
         return "unknown"
     if psi < 0.1:
@@ -67,7 +73,8 @@ def psi_to_drift_flag(psi: float) -> str:
     return "severe_drift"
 
 
-def run_drift_detection(baseline_df: pd.DataFrame,slice_df: pd.DataFrame,slice_id: str,numeric_features: list[str] | None = None) -> list[dict]:
+def run_drift_detection(baseline_df: pd.DataFrame, slice_df: pd.DataFrame, slice_id: str, numeric_features: list[str] | None = None) -> list[dict]:
+    """Compute PSI, KS stat, KS p-value, drift_flag per numeric feature. Returns list of record dicts."""
     if numeric_features is None:
         base_num = set(_get_numeric_features(baseline_df))
         slice_num = set(_get_numeric_features(slice_df))
@@ -96,6 +103,7 @@ def run_drift_detection(baseline_df: pd.DataFrame,slice_df: pd.DataFrame,slice_i
 
 
 def main():
+    """Run drift detection for each slice vs baseline, write drift_log.csv."""
     project_root = Path(__file__).resolve().parents[2]
     slice_dir = project_root / "data" / "time_slices"
     baseline_path = slice_dir / "baseline.csv"
@@ -127,5 +135,6 @@ def main():
         print("No slice_*.csv files or no common numeric features. drift_log.csv not written.")
 
 
-if __name__ == "__main__":
+def run():
+    """Entry point: run main()."""
     main()
