@@ -1,5 +1,6 @@
 ipykernel
 scikit-learn
+scipy
 numpy
 pandas
 seaborn
