@@ -67,16 +67,7 @@ def psi_to_drift_flag(psi: float) -> str:
     return "severe_drift"
 
 
-def run_drift_detection(
-    baseline_df: pd.DataFrame,
-    slice_df: pd.DataFrame,
-    slice_id: str,
-    numeric_features: list[str] | None = None,
-) -> list[dict]:
-    """
-    Compare baseline vs slice for each numeric feature using PSI and KS-test.
-    Returns list of records for drift_log.
-    """
+def run_drift_detection(baseline_df: pd.DataFrame,slice_df: pd.DataFrame,slice_id: str,numeric_features: list[str] | None = None) -> list[dict]:
     if numeric_features is None:
         base_num = set(_get_numeric_features(baseline_df))
         slice_num = set(_get_numeric_features(slice_df))
