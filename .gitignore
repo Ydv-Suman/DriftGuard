@@ -9,6 +9,7 @@ __pycache__/
 data/raw/
 data/merged/
 data/time_slices/
+*.pkl
 *.joblib
 *.parquet
 *.feather
