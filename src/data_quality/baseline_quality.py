@@ -97,6 +97,7 @@ def main():
     }
 
     save_quality_artifact(baseline_quality, output_path)
+    print("\n\n2.1 - Baseline quality completion")
 
 
 def run():

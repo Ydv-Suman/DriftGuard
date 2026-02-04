@@ -87,6 +87,8 @@ def main():
 
     with open(model_path, "wb") as f:
         pickle.dump(model, f)
+    
+    print("\n\n3.1 - Baseline model training completion")
 
 
 def run():

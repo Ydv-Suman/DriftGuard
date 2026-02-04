@@ -6,3 +6,5 @@ pandas
 seaborn
 matplotlib
 kaggle
+fastapi
+streamlit

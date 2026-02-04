@@ -112,6 +112,8 @@ def main():
         print(f"Quality check completed for {len(results)} slices.")
     else:
         print("No slice_*.csv files found. Nothing to evaluate.")
+    
+    print("\n\n2.2 - quality check completion")
 
 
 def run():

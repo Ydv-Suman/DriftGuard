@@ -9,7 +9,6 @@ from sklearn.inspection import permutation_importance as sk_permutation_importan
 
 
 BASELINE_SLICE = "baseline.csv"
-DEGRADED_SLICE = "slice_6.csv"   # Slice used as degraded for importance comparison
 N_PERMUTATION_REPEATS = 3  # repeats for permutation importance
 RANDOM_STATE = 42
 MAX_SAMPLES_FOR_IMPORTANCE = 5000  # subsample if dataset larger (speed)
@@ -67,7 +66,7 @@ def permutation_importance(
     )
     return dict(zip(X.columns, result.importances_mean))
 
-def main():
+def main(slice_id: str):
     """Compute permutation importance on baseline and degraded slice, write feature_impact_*.csv."""
     project_root = Path(__file__).resolve().parents[2]
     model_path = project_root / "models" / "baseline_model.pkl"
@@ -76,18 +75,14 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     model = load_model(model_path)
-    print("model loaded")
     baseline_df = load_slice(slice_dir / BASELINE_SLICE)
-    degraded_df = load_slice(slice_dir / DEGRADED_SLICE)
-    print("slice loaded")
+    degraded_df = load_slice(slice_dir / f"{slice_id}.csv")
     
     X_base, y_base = prepare_xy(baseline_df)
     X_deg, y_deg = prepare_xy(degraded_df)
-    print("data prepared")
 
     base_importance = permutation_importance(model, X_base, y_base)
     deg_importance = permutation_importance(model, X_deg, y_deg)
-    print("permutation")
 
     base_df = pd.DataFrame(
         base_importance.items(),
@@ -100,22 +95,16 @@ def main():
     )
 
     delta_df = base_df.merge(deg_df, on="feature", how="inner")
-    delta_df["importance_delta"] = (
-        delta_df["importance_degraded"] -
-        delta_df["importance_baseline"]
-    )
+    delta_df["importance_delta"] = (delta_df["importance_degraded"] -delta_df["importance_baseline"])
     delta_df["abs_importance_delta"] = delta_df["importance_delta"].abs()
+    delta_df = delta_df.sort_values(by="abs_importance_delta",ascending=False)
 
-    delta_df = delta_df.sort_values(
-        by="abs_importance_delta",
-        ascending=False
-    )
+    base_df.to_csv(output_dir / f"{slice_id}_feature_impact_baseline.csv",index=False)
+    deg_df.to_csv(output_dir / f"{slice_id}_feature_impact_degraded.csv",index=False)
+    delta_df.to_csv(output_dir / f"{slice_id}_feature_impact_delta.csv",index=False)
 
-    base_df.to_csv(output_dir / "feature_impact_baseline.csv", index=False)
-    deg_df.to_csv(output_dir / "feature_impact_degraded.csv", index=False)
-    delta_df.to_csv(output_dir / "feature_impact_delta.csv", index=False)
-    print("saved")
+    print("\n5 - analysis for each slice")
 
-def run():
+def run(slice_id: str):
     """Entry point: run main()."""
-    main()
+    main(slice_id)

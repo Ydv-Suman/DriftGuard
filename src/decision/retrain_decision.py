@@ -90,39 +90,38 @@ def decide(performance_bad: bool, quality_bad: bool, drift_bad: bool, impact_bad
     }
 
 
-def main():
-    """Load monitoring CSVs and impact CSV, run checks, decide action, write retraining_decision.json."""
+def main(slice_id: str, decisions: dict):
+    """Load monitoring CSVs and impact CSV, run checks, decide action."""
+
     project_root = Path(__file__).resolve().parents[2]
 
     quality_path = project_root / "artifacts" / "monitoring" / "data_quality_log.csv"
     perf_path = project_root / "artifacts" / "monitoring" / "performance_log.csv"
     drift_path = project_root / "artifacts" / "monitoring" / "drift_log.csv"
-    impact_path = project_root / "artifacts" / "explainability" / "feature_impact_delta.csv"
-
-    output_dir = project_root / "artifacts" / "decision"
-    output_dir.mkdir(parents=True, exist_ok=True)
-
+    impact_path = (project_root/ "artifacts"/ f"{slice_id}_feature_impact_delta.csv")
 
     quality_df = load_csv(quality_path)
     perf_df = load_csv(perf_path)
     drift_df = load_csv(drift_path)
-    impact_df = load_csv(impact_path)
-
 
     reasons = []
 
-    performance_bad, r = check_performance(perf_df)
+    performance_bad, r = check_performance(perf_df[perf_df["slice_id"] == slice_id])
     reasons.extend(r)
 
-    quality_bad, r = check_quality(quality_df)
+    quality_bad, r = check_quality(quality_df[quality_df["slice_id"] == slice_id])
     reasons.extend(r)
 
-    drift_bad, r = check_drift(drift_df)
+    drift_bad, r = check_drift(drift_df[drift_df["slice_id"] == slice_id])
     reasons.extend(r)
 
-    impact_bad, r = check_feature_impact(impact_df)
-    reasons.extend(r)
-
+    if impact_path.exists():
+        impact_df = load_csv(impact_path)
+        impact_bad, r = check_feature_impact(impact_df)
+        reasons.extend(r)
+    else:
+        impact_bad = False
+        reasons.append("Explainability not required for this slice")
 
     decision = decide(
         performance_bad,
@@ -132,15 +131,21 @@ def main():
         reasons
     )
 
-
-    output_path = output_dir / "retraining_decision.json"
-    with open(output_path, "w") as f:
-        json.dump(decision, f, indent=2)
-
-    print("Retraining Decision Engine completed")
-    print(json.dumps(decision, indent=2))
+    decisions[slice_id] = decision
 
 
-def run():
-    """Entry point: run main()."""
-    main()
+
+def run(slice_ids: list[str]):
+    project_root = Path(__file__).resolve().parents[2]
+    output_dir = project_root / "artifacts" / "decision"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    decisions = {}
+
+    for slice_id in slice_ids:
+        main(slice_id, decisions)
+
+    with open(output_dir / "retraining_decisions.json", "w") as f:
+        json.dump(decisions, f, indent=2)
+
+    print("\n\n6 - retraining decisions completion")

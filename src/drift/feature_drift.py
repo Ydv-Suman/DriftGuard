@@ -133,6 +133,8 @@ def main():
         print(f"Drift log written to {output_path} ({len(all_records)} rows).")
     else:
         print("No slice_*.csv files or no common numeric features. drift_log.csv not written.")
+    
+    print("\n\n4 -  feature drift completion")
 
 
 def run():

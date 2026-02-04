@@ -70,6 +70,8 @@ def main():
         print(f"Performance evaluation completed for {len(records)} slices.")
     else:
         print("No slices found.")
+    
+    print("\n\n3.2 -  evaluation over time completion")
 
 
 def run():

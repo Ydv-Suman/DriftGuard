@@ -1,0 +1,86 @@
+{
+  "slice_1": {
+    "decision": "INVESTIGATE_DATA_PIPELINE",
+    "confidence": "HIGH",
+    "reasons": [
+      "Recall dropped by 73%",
+      "F1-score dropped by 58%",
+      "Quality alerts triggered in 100% of slices",
+      "22 features show severe PSI drift (> 0.25)",
+      "Explainability not required for this slice"
+    ],
+    "timestamp": "2026-02-04T04:27:57.051962"
+  },
+  "slice_2": {
+    "decision": "INVESTIGATE_DATA_PIPELINE",
+    "confidence": "HIGH",
+    "reasons": [
+      "Recall dropped by 79%",
+      "F1-score dropped by 65%",
+      "Quality alerts triggered in 100% of slices",
+      "13 features show severe PSI drift (> 0.25)",
+      "Explainability not required for this slice"
+    ],
+    "timestamp": "2026-02-04T04:27:57.056037"
+  },
+  "slice_3": {
+    "decision": "INVESTIGATE_DATA_PIPELINE",
+    "confidence": "HIGH",
+    "reasons": [
+      "Recall dropped by 78%",
+      "F1-score dropped by 65%",
+      "Quality alerts triggered in 100% of slices",
+      "15 features show severe PSI drift (> 0.25)",
+      "Explainability not required for this slice"
+    ],
+    "timestamp": "2026-02-04T04:27:57.058710"
+  },
+  "slice_4": {
+    "decision": "INVESTIGATE_DATA_PIPELINE",
+    "confidence": "HIGH",
+    "reasons": [
+      "Recall dropped by 85%",
+      "F1-score dropped by 74%",
+      "Quality alerts triggered in 100% of slices",
+      "17 features show severe PSI drift (> 0.25)",
+      "Explainability not required for this slice"
+    ],
+    "timestamp": "2026-02-04T04:27:57.061366"
+  },
+  "slice_5": {
+    "decision": "INVESTIGATE_DATA_PIPELINE",
+    "confidence": "HIGH",
+    "reasons": [
+      "Recall dropped by 76%",
+      "F1-score dropped by 62%",
+      "Quality alerts triggered in 100% of slices",
+      "16 features show severe PSI drift (> 0.25)",
+      "Explainability not required for this slice"
+    ],
+    "timestamp": "2026-02-04T04:27:57.064323"
+  },
+  "slice_6": {
+    "decision": "INVESTIGATE_DATA_PIPELINE",
+    "confidence": "HIGH",
+    "reasons": [
+      "Recall dropped by 85%",
+      "F1-score dropped by 74%",
+      "Quality alerts triggered in 100% of slices",
+      "16 features show severe PSI drift (> 0.25)",
+      "Explainability not required for this slice"
+    ],
+    "timestamp": "2026-02-04T04:27:57.069063"
+  },
+  "slice_7": {
+    "decision": "INVESTIGATE_DATA_PIPELINE",
+    "confidence": "HIGH",
+    "reasons": [
+      "Recall dropped by 80%",
+      "F1-score dropped by 68%",
+      "Quality alerts triggered in 100% of slices",
+      "16 features show severe PSI drift (> 0.25)",
+      "Explainability not required for this slice"
+    ],
+    "timestamp": "2026-02-04T04:27:57.073179"
+  }
+}

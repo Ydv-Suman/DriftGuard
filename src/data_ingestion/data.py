@@ -60,7 +60,7 @@ def main():
     sliced_df = create_time_slices(merged_df, n_slices=8)
     save_time_slices(sliced_df, output_dir)
 
-    print("Time slices created successfully.")
+    print("\n\n1 - Time slices created successfully.")
 
 
 def run():
